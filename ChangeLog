@@ -1,3 +1,130 @@
+2010-02-21  Ralf Angeli  <angeli@caeruleus.net>
+
+	* Version 11.86 released.
+
+2010-02-21  Ralf Angeli  <angeli@caeruleus.net>
+
+	* RELEASE: Update for upcoming release.
+
+	* doc/install.texi (Prerequisites): Update information about Emacs
+	distributions.
+
+	* doc/tex-ref.tex: Bump version number.  Update section on TeXing
+	options.
+
+	* configure.ac: Bump version number.
+
+	* auctex.spec (Version): Bump version number.
+
+	* doc/fdl.texi: Switch to GFDL 1.3.
+
+	* doc/auctex.texi: Switch to GFDL 1.3.
+
+	* doc/preview-latex.texi: Switch to GFDL 1.3.
+
+	* doc/changes.texi: Update for next release.
+
+2010-02-20  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex.el (TeX-doc): Add a fallback in case nothing is found via
+	the backend list, e.g. when using MiKTeX 2.8.
+
+	* doc/auctex.texi (Documentation): Document change in `TeX-doc'.
+
+2010-02-14  Ralf Angeli  <angeli@caeruleus.net>
+
+	* doc/changes.texi: Mention preview.sty supporting XeTeX.
+
+2010-02-13  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex.el (TeX-XeTeX-command, LaTeX-XeTeX-command): Remove.
+	(ConTeXt-engine): Doc fix.
+	(ConTeXt-Omega-engine): Doc fix.  Make obsolote.
+	(TeX-expand-list): Add support for LuaTeX.  Adapt to new engine
+	handling.
+	(AUC-TeX-version, AUC-TeX-date): Remove.
+	(TeX-engine-alist-builtin): New variable.
+	(TeX-engine-alist): Adapt to new engine handling and make it a
+	defcustom.
+	(TeX-engine-alist): New function.
+	(TeX-engine): Adapt to new engine handling and make it
+	buffer-local.
+	(LaTeX-engine-alist): Remove.
+	(TeX-engine-set): Adapt to new engine handling and take care of
+	TeX PDF mode.
+	(TeX-clean-default-output-suffixes): Add .xdv.
+	(TeX-mode-specific-command-menu-entries): Construct list of
+	engines from `TeX-engine-alist'.
+
+	* context.el (ConTeXt-expand-options): Adapt to new engine
+	handling.
+
+	* doc/auctex.texi (Processor Options): Document options and
+	functions of new engine handling.
+
+2009-12-30  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex.el (TeX-view-command-raw): Abort if no matching viewer is
+	found.
+
+	* doc/preview-faq.texi (Troubleshooting): Add some hints about
+	preview-latex overwriting output files.
+
+2009-12-28  Ralf Angeli  <angeli@caeruleus.net>
+
+	* style/austrian.el: New file.
+
+	* style/naustrian.el: New file.
+
+	* Makefile.in (STYLESRC): Add style/austrian.el and
+	style/naustrian.el.
+
+2009-12-26  Ralf Angeli  <angeli@caeruleus.net>
+
+	* doc/auctex.texi (Known problems): New subsection on dealing with
+	font locking problems.
+
+	* font-latex.el (font-latex-syntax-alist): New variable.
+	(font-latex-add-to-syntax-alist): New function.
+	(font-latex-setup): Use `font-latex-syntax-alist'.
+
+	* style/shortvrb.el: New file.
+
+	* Makefile.in (STYLESRC): Add style/shortvrb.el.
+
+	* tex-style.el (LaTeX-shortvrb-chars): New variable.
+
+	* doc/changes.texi: Document changes after 11.85.
+
+	* context.el (ConTeXt-expand-options): Check for XeTeX engine, not
+	for mode which does not exist anymore.
+
+	* tex.el (plain-TeX-common-initialization): Let commented lines be
+	matched by `paragraph-separate' in order for commented and
+	non-commented paragraphs to be filled separately.
+
+2009-12-12  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex-buf.el (TeX-parse-error): Also find quoted file names with
+	newlines.  Remove the newlines from the matched string if
+	necessary.
+
+2009-12-07  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex-buf.el (TeX-parse-error): Add an alternative in the parser
+	regexp for quoted file names.  Strip the quotation marks if a file
+	name was found with the alternative.
+
+2009-12-06  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex-fold.el (TeX-fold-command-prefix): New variable.
+	(TeX-fold-mode): Use it.
+	(TeX-fold-keymap): Remove prefix strings.
+
+	* tex.el (TeX-fold-menu): Remove hard-coded key binding labels.
+
+	* doc/auctex.texi (Folding): Mention `TeX-fold-command-prefix'.
+
 2009-11-22  Ralf Angeli  <angeli@caeruleus.net>
 
 	* doc/wininstall.texi: Do not refer to Emacs 22 anymore.  Improve

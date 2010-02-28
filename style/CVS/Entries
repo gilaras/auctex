@@ -13,6 +13,7 @@
 /amstext.el/1.2/Sun Oct 23 10:13:01 2005//
 /amsthm.el/1.3/Sun Feb  3 14:53:30 2008//
 /article.el/1.4/Thu Mar 17 10:02:06 2005//
+/austrian.el/1.1/Mon Dec 28 22:06:34 2009//
 /babel.el/1.8/Sun Feb  3 14:53:30 2008//
 /beamer.el/1.15/Sun May 25 07:33:52 2008//
 /book.el/1.5/Thu Mar 17 10:02:06 2005//
@@ -64,6 +65,7 @@
 /multido.el/1.1/Sat Feb 28 00:04:27 2009//
 /multind.el/1.4/Sun Feb  3 14:53:29 2008//
 /natbib.el/1.9/Sun Feb 15 15:33:00 2009//
+/naustrian.el/1.1/Mon Dec 28 22:06:48 2009//
 /ngerman.el/1.6/Mon Dec  5 10:49:11 2005//
 /nicefrac.el/1.8/Sun Feb  3 14:53:29 2008//
 /nomencl.el/1.2/Sun Feb  3 14:53:29 2008//
@@ -88,6 +90,7 @@
 /scrlttr2.el/1.7/Sun Feb  3 14:53:29 2008//
 /scrpage2.el/1.6/Sun Feb  3 14:53:29 2008//
 /scrreprt.el/1.9/Sun Feb  3 14:53:29 2008//
+/shortvrb.el/1.1/Sat Dec 26 15:34:21 2009//
 /slides.el/1.8/Sun Feb  3 14:53:29 2008//
 /slovak.el/1.4/Mon Dec  5 10:49:11 2005//
 /subfigure.el/1.6/Sun Feb  3 14:53:29 2008//
