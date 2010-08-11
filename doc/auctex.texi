@@ -126,7 +126,7 @@ sending ``subscribe'' in the subject of a mail to
 * Display::                     Controlling Screen Display
 * Processing::                  Starting Processors, Viewers and Other Programs
 * Customization::               Customization and Extension
-* Appendices::                  Copying, Changes, Development, FAQ
+* Appendices::                  Copying, Changes, Development, FAQ, Texinfo mode
 * Indices::                     Indices
 
 @detailmenu
@@ -220,6 +220,7 @@ Copying, Changes, Development, FAQ
 * Changes::                     
 * Development::                 
 * FAQ::                         
+* Texinfo mode::                
 
 Copying this Manual
 
@@ -4172,13 +4173,14 @@ List of functions to be called after parsing a @TeX{} file.
 @end defvar
 
 @node Appendices
-@appendix Copying, Changes, Development, FAQ
+@appendix Copying, Changes, Development, FAQ, Texinfo Mode
 
 @menu
 * Copying this Manual::         
 * Changes::                     
 * Development::                 
 * FAQ::                         
+* Texinfo mode::                
 @end menu
 
 @node Copying this Manual
@@ -4223,6 +4225,201 @@ See the file @file{history.texi} for older changes.
 @lowersections
 @include faq.texi
 @raisesections
+
+@node Texinfo mode
+@appendixsec Features specific to @AUCTeX{}'s Texinfo major mode
+
+@AUCTeX{} includes a major mode for editting Texinfo files.  This major
+mode is not the same mode as the native Texinfo mode (@pxref{(texinfo)
+Texinfo Mode}) of Emacs, although they have the same name.  However,
+@AUCTeX{} still relies on a number of functions from the native Texinfo
+mode.
+
+The following text describes which functionality is offered by @AUCTeX{}
+and which by the native Texinfo mode.  This should enable you to decide
+when to consult the @AUCTeX{} manual and when the manual of the native
+mode.  And in case you are a seasoned user of the native mode, the
+information should help you to swiftly get to know the
+@AUCTeX{}-specific commands.
+
+@menu
+* Exploiting::                  How @AUCTeX{} and the native mode work together
+* Superseding::                 Where the native mode is superseded
+* Mapping::                     Where key bindings are mapped to the native mode
+* Unbinding::                   Which native mode key bindings are missing
+@end menu
+
+@node Exploiting
+@appendixsubsec How @AUCTeX{} and the native mode work together
+
+In a nutshell the split between @AUCTeX{} Texinfo mode, and native
+Texinfo mode is as follows:
+
+@itemize
+@item
+Most of the editing (environment creation, commenting, font command
+insertions) and/or processing commands (e.g. compiling or printing)
+which are available in other @AUCTeX{} modes are also handled by
+@AUCTeX{} in Texinfo mode.
+
+@item
+Texinfo-related features (e.g. info node linkage or menu creation) rely
+on the commands provided by the native Texinfo mode.  @AUCTeX{} provides
+the key bindings to reach these functions, keeping the same keys as in
+native Texinfo whenever possible, or similar ones otherwise.
+@end itemize
+
+@node Superseding
+@appendixsubsec Where the native mode is superseded
+
+This section is directed to users of the native Texinfo mode switching
+to @AUCTeX{}.  It follows the summary of the native mode
+(@pxref{(texinfo) Texinfo Mode Summary}) and lists which of its commands
+are no longer of use.
+
+@table @asis
+@item Insert commands
+In the native Texinfo mode, frequently used Texinfo commands can be
+inserted with key bindings of the form @kbd{C-c C-c @var{k}} where
+@var{k} differs for each Texinfo command; @kbd{c} inserts @@code,
+@kbd{d} inserts @@dfn, @kbd{k} @@kbd, etc.
+
+In @AUCTeX{} commands are inserted with the key binding @kbd{C-c C-m}
+instead which prompts for the macro to be inserted.  For font selection
+commands (like @@b, @@i, or @@emph) and a few related ones (like @@var,
+@@key or @@code) there are bindings which insert the respective macros
+directly.  They have the form @code{C-c C-f @var{k}} or @code{C-c C-f
+C-@var{k}} and call the function @code{TeX-font}.  Type @kbd{C-c C-f
+@key{RET}} to get a list of supported commands.
+
+Note that the prefix argument is not handled the same way by @AUCTeX{}.
+Note also that the node insertion command from the native mode
+(@code{texinfo-insert-@@node}) can still accessed from the Texinfo menu
+in @AUCTeX{}.
+
+@item Insert braces
+In @AUCTeX{} braces can be inserted with the same key binding as in the
+native Texinfo mode: @kbd{C-c @{}.  But @AUCTeX{} uses its own function
+for the feature: @code{TeX-insert-braces}.
+
+@item Insert environments
+The native Texinfo mode does not insert full environments.  Instead, it
+provides the function @code{texinfo-insert-@@end} (mapped to @kbd{C-c
+C-c e}) for closing an open environment with a matching @@end statement.
+
+In @AUCTeX{} you can insert full environments, i.e. both the opening and
+closing statements, with the function @code{Texinfo-environment} (mapped
+to @kbd{C-c C-e}).
+
+@item Format info files with makeinfo and @TeX{}
+In the native Texinfo mode there are various functions and bindings to
+format a region or the whole buffer for info or to typeset the
+respective text.  For example, there is @code{makeinfo-buffer} (mapped
+to @kbd{C-c C-m C-b}) which runs @samp{makeinfo} on the buffer or there
+is @code{texinfo-tex-buffer} (mapped to @kbd{C-c C-t C-b}) which runs
+@TeX{} on the buffer in order to produce a @acronym{DVI} file.
+
+In @AUCTeX{} different commands for formatting or typesetting can be
+invoked through the function @code{TeX-command-master} (mapped to
+@kbd{C-c C-c}).  After typing @kbd{C-c C-c}, you can select the desired
+command, e.g @samp{Makeinfo} or @samp{TeX}, through a prompt in the mini
+buffer.  Note that you can make, say @samp{Makeinfo}, the default by
+adding this statement in your init file:
+
+@lisp
+(add-hook 'Texinfo-mode-hook 
+          (lambda () (setq TeX-command-default "Makeinfo")))
+@end lisp
+
+Note also that @kbd{C-c C-c Makeinfo @key{RET}} is not completely
+functionally equivalent to @code{makeinfo-buffer} as the latter will
+display the resulting info file in Emacs, showing the node corresponding
+to the position in the source file, just after a successful compilation.
+This is why, while using @AUCTeX{}, invoking @code{makeinfo-buffer}
+might still be more convenient.
+
+Note also that in the case of a multifile document, @kbd{C-c C-c} in
+@AUCTeX{} will work on the whole document (provided that the file
+variable @code{TeX-master} is set correctly), while
+@code{makeinfo-buffer} in the native mode will process only the current
+buffer, provided at the @code{@@setfilename} statement is provided.
+
+@item Produce indexes and print
+The native Texinfo mode provides the binding @kbd{C-c C-t C-i}
+(@code{texinfo-texindex}) for producing an index and the bindings
+@kbd{C-c C-t C-p} (@code{texinfo-tex-print}) and @kbd{C-c C-t C-q}
+(@code{tex-show-print-queue}) for printing and showing the printer
+queue.  These are superseded by the respective commands available
+through @kbd{C-c C-c} (@code{TeX-command-master}) in @AUCTeX{}: Index,
+Print, and Queue.
+
+@item Kill jobs
+The command @kbd{C-c C-t C-k} (@code{tex-kill-job}) in the native mode
+is superseded by @kbd{C-c C-k} (@code{TeX-kill-job}) in @AUCTeX{}.
+@end table
+
+@node Mapping
+@appendixsubsec Where key bindings are mapped to the native mode
+
+This node follows the native Texinfo mode summary (@pxref{(texinfo)
+Texinfo Mode Summary}) and lists only those commands to which @AUCTeX{}
+provides a keybinding.
+
+Basically all commands of the native mode related to producing menus and
+interlinking nodes are mapped to same or similar keys in @AUCTeX{},
+while a few insertion commands are mapped to @AUCTeX{}-like keys.
+
+@table @asis
+
+@item @code{@@item} insertion
+The binding @kbd{C-c C-c i} for the insertion of @code{@@item} in the
+native mode is mapped to @kbd{M-@key{RET}} or @kbd{C-c C-j} in
+@AUCTeX{}, similar to other @AUCTeX{} modes.
+
+@item @code{@@end} insertion
+The binding @kbd{C-c C-c e} for closing a @code{@@@var{foo}} command by
+a corresponding @code{@@end @var{foo}} statement in the native mode is
+mapped to @kbd{C-c C-]} in @AUCTeX{}, similar to other @AUCTeX{} modes.
+
+@item Move out of balanced braces
+The binding @kbd{C-@}} (@code{up-list}) is available both in the native
+mode and in @AUCTeX{}.  (This is because the command is not implemented
+in either mode but a native Emacs command.)  However, in @AUCTeX{}, you
+cannot use @kbd{C-]} for this, as it is used for @code{@@end} insertion.
+
+@item Update pointers
+The bindings @kbd{C-c C-u C-n} (@code{texinfo-update-node}) and @kbd{C-c
+C-u C-e} (@code{texinfo-every-node-update}) from the native mode are
+available in @AUCTeX{} as well.
+
+@item Update menus
+The bindings @kbd{C-c C-u m} (@code{texinfo-master-menu}), @kbd{C-c C-u
+C-m} (@code{texinfo-make-menu}), and @kbd{C-c C-u C-a}
+(@code{texinfo-all-menus-update}) from the native mode are available in
+@AUCTeX{} as well.  The command @code{texinfo-start-menu-description},
+bound to @kbd{C-c C-c C-d} in the native mode, is bound to @kbd{C-c C-u
+C-d} in @AUCTeX{} instead.
+@end table
+
+@node Unbinding
+@appendixsubsec Which native mode key bindings are missing
+
+The following commands from the native commands might still be useful
+when working with @AUCTeX{}, however, they are not accessible with a
+key binding any longer.
+
+@table @asis
+@item @code{@@node} insertion
+The node insertion command, mapped to @kbd{C-c C-c n} in the native
+mode, is not mapped to any key in @AUCTeX{}.  You can still access it
+through the Texinfo menu, though.  Another alternative is to use the
+@kbd{C-c C-m} binding for macro insertion in @AUCTeX{}.
+
+@item Show the section structure
+The command @code{texinfo-show-structure} (@kbd{C-c C-s}) from the
+native mode does not have a key binding in @AUCTeX{}.  The binding is
+used by @AUCTeX{} for sectioning.
+@end table
 
 @node Indices
 @unnumbered Indices

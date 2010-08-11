@@ -1,3 +1,128 @@
+2010-07-11  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex-info.el: Delete trailing whitespace.
+
+2010-07-04  Ralf Angeli  <angeli@caeruleus.net>
+
+	* doc/faq.texi: Update infos about Emacs versions.  Add FAQ entry
+	for file:line:error messages in case `TeX-next-error' fails due to
+	unbalanced parens.
+
+	* tex.el (TeX-print-command, TeX-queue-command)
+	(TeX-printer-list): Switch back to Berkeley-style commands.
+
+2010-06-24  Ralf Angeli  <angeli@caeruleus.net>
+
+	* doc/auctex.texi (Texinfo mode): Make a few corrections.
+
+2010-06-19  Berend de Boer  <berend@pobox.com>
+
+	* context.el: proper indent of all macros that can appear inside
+	an itemize list such as \sym.
+
+2010-06-12  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex-info.el (Texinfo-find-env-end, Texinfo-find-env-start):
+	Enable the commands to be used repeatedly without getting stuck at
+	an environment start or end respectively.
+
+2010-05-27  Ralf Angeli  <angeli@caeruleus.net>
+
+	* autogen.sh: Set LANG=C when looking into ChangeLog for
+	AUCTEXDATE.
+
+2010-05-24  Vincent Belaïche  <vincent.belaiche@gmail.com>
+
+	* doc/auctex.texi (Texinfo mode): New section.
+
+2010-05-17  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex.el (TeX-math-input-method-off-regexp): Fix regexp.
+
+2010-04-25  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex.el (TeX-print-command): Support printing of Postscript and
+	PDF files.  Doc fix.
+	(TeX-queue-command): Use lpstat instead of lpq.  Doc fix.
+	(TeX-printer-list): Support printing of Postscript and PDF files.
+	Make use of System V style commands (lp, lpstat) instead of
+	Berkeley style (lpr, lpq).
+	(TeX-printer-default): Doc fix.
+
+2010-04-17  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex-buf.el (TeX-warning): Throw an error with a sensible message
+	if the file for the warning could not be determined.
+
+2010-04-13  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex-buf.el (TeX-format-filter): Calculate the current column as
+	difference between line start and end instead of using
+	`current-column' in order to do the right thing when octal codes
+	are present.
+
+2010-04-11  Ralf Angeli  <angeli@caeruleus.net>
+
+	* font-latex.el (font-latex-keyword-matcher): Quote a list of face
+	properties but do not to quote a face symbol.
+
+2010-04-05  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex-buf.el (TeX-parse-error): Allow `TeX-error-file' to become
+	empty.
+
+2010-03-28  Ralf Angeli  <angeli@caeruleus.net>
+
+	* plain-tex.el: New file.
+
+	* tex.el: Move code related to plain TeX to plain-tex.el.
+
+	* Makefile.in (AUCSRC): Add plain-tex.el.
+
+	* context.el: Require `plain-tex'.
+
+2010-03-27  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex.el (TeX-view-program-selection): Doc fix.
+	(TeX-clean): Regexp-quote the master file name.
+
+2010-03-20  Ralf Angeli  <angeli@caeruleus.net>
+
+	* style/french.el: New file.
+
+	* Makefile.in (STYLESRC): Add style/french.el.
+
+2010-03-07  Ralf Angeli  <angeli@caeruleus.net>
+
+	* latex.el (TeX-arg-key-val): Hint at key=value format in prompt.
+	(LaTeX-fill-region-as-para-do): Match whitespace without comment
+	starter at beginning of line when dealing with code comments.
+
+2010-03-06  Ralf Angeli  <angeli@caeruleus.net>
+
+	* Makefile.in (DIST_PREFIX): Use the working directory for the
+	folder with distribution files.
+	(FTPDIR, WWWDIR): Make them subdirectories of `DIST_PREFIX'.
+	(COMMITTER_NAME, COMMITTER_EMAIL): Remove.
+	(COMMITTER): New variable.
+	(.PHONY): Update.
+	(tar-ball-clean): Use `check-tag'.
+	(check-tag): New name for `check-dist'.
+	(dist): Do not call `release-commit' anymore.
+	(snapshot): Now an alias for `dist'.
+	(release-commit): Use `COMMITTER'.
+	(release-sign): New name for `full-release' target.  Generate
+	version 1.1 directive files.
+	(xemacs-package): Depend on `check-tag'.
+	(WPACKAGEFILES): Include info files with a numerical supplement to
+	the .info extension.  Depend on `check-tag'.  Check for presence
+	of `WEMACSVER' variable.  Try to find a local AUCTeX tar ball
+	before downloading one.  Use `TAG' instead of `WAUCVER'.  Put ZIP
+	archive into `FTPDIR'.
+	(WAUCVER, WEMACSVER): Remove.
+	(release-upload): New target.
+	(www-doc): Depend on `check-tag'.  Update URLs for Emacs manuals.
+
 2010-02-21  Ralf Angeli  <angeli@caeruleus.net>
 
 	* Version 11.86 released.
