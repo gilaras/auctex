@@ -1,6 +1,7 @@
 ;;; context.el --- Support for ConTeXt documents.
 
-;; Copyright (C) 2003, 2004, 2005, 2006, 2008 Free Software Foundation, Inc.
+;; Copyright (C) 2003, 2004, 2005, 2006, 2008, 2010 Free Software
+;;   Foundation, Inc.
 
 ;; Maintainer: Berend de Boer <berend@pobox.com>
 ;; Keywords: tex
@@ -904,10 +905,6 @@ If OPTIONAL, only insert it if not empty, and then use square brackets."
 (defvar ConTeXt-item-list ()
   "List of macro's considered items.")
 
-(defvar ConTeXt-extra-paragraph-commands
-  '("crlf" "par")
-  "List of ConTeXt macros that should have their own line besides the section(-block) commands.")
-
 (defun ConTeXt-paragraph-commands-regexp ()
   "Return a regexp matching macros that should have their own line."
   (concat
@@ -1486,7 +1483,7 @@ else.  There might be text before point."
 (defun ConTeXt-expand-options ()
   "Expand options for texexec command."
   (concat
-   (let ((engine (nth 4 (assq TeX-engine (TeX-engine-alist)))))
+   (let ((engine (eval (nth 4 (assq TeX-engine (TeX-engine-alist))))))
      (when engine
        (format "--engine=%s " engine)))
    (unless (eq ConTeXt-current-interface "en")
@@ -1505,10 +1502,16 @@ else.  There might be text before point."
 ;; They are mapped to interface specific variables
 
 (defvar ConTeXt-language-variable-list
-  '(ConTeXt-define-list ConTeXt-setup-list ConTeXt-referencing-list ConTeXt-other-macro-list
-	   ConTeXt-project-structure-list
-	   ConTeXt-section-block-list ConTeXt-section-list
-		       ConTeXt-text ConTeXt-item-list))
+  '(ConTeXt-define-list
+    ConTeXt-setup-list
+    ConTeXt-referencing-list
+    ConTeXt-other-macro-list
+    ConTeXt-project-structure-list
+    ConTeXt-section-block-list
+    ConTeXt-section-list
+    ConTeXt-text
+    ConTeXt-item-list
+    ConTeXt-extra-paragraph-commands))
 
 (defcustom ConTeXt-clean-intermediate-suffixes
   ;; See *suffixes in texutil.pl.
@@ -1530,6 +1533,8 @@ i.e. you do _not_ have to cater for this yourself by adding \\\\' or $."
   :type '(repeat regexp)
   :group 'TeX-command)
 
+(TeX-abbrev-mode-setup context-mode)
+
 (defun ConTeXt-mode-common-initialization ()
   "Initialization code that is common for all ConTeXt interfaces."
   ;; `plain-TeX-common-initialization' kills all local variables, but
@@ -1540,6 +1545,8 @@ i.e. you do _not_ have to cater for this yourself by adding \\\\' or $."
     (plain-TeX-common-initialization)
     (setq ConTeXt-current-interface save-ConTeXt-current-interface))
   (setq major-mode 'context-mode)
+
+  (setq local-abbrev-table context-mode-abbrev-table)
 
   ;; Make language specific variables buffer local
   (dolist (symbol ConTeXt-language-variable-list)

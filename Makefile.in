@@ -82,7 +82,7 @@ MULEELC = @MULEELC@
 AUCSRC = tex.el tex-buf.el tex-style.el plain-tex.el latex.el tex-info.el \
 	texmathp.el multi-prompt.el tex-mik.el font-latex.el tex-font.el \
 	context.el context-en.el context-nl.el tex-fold.el \
-	toolbar-x.el tex-bar.el bib-cite.el tex-fptex.el
+	toolbar-x.el tex-bar.el bib-cite.el
 AUCELC = $(AUCSRC:.el=.elc)
 
 STYLESRC = style/prosper.el \
@@ -119,7 +119,8 @@ STYLESRC = style/prosper.el \
 	   style/ruby.el      style/CJKutf8.el   style/tabularx.el \
 	   style/multido.el   style/pst-grad.el  style/pst-node.el \
 	   style/pst-plot.el  style/pst-slpe.el  style/shortvrb.el \
-	   style/austrian.el  style/naustrian.el style/french.el
+	   style/austrian.el  style/naustrian.el style/french.el \
+	   style/lettrine.el  style/multicol.el  style/xspace.el
 STYLEELC = $(STYLESRC:.el=.elc)
 
 CLEANFILES = $(AUCELC) $(STYLEELC) $(MULEELC)

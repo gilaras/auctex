@@ -1,3 +1,274 @@
+2011-05-01  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex.el (TeX-tree-expand): Use a different test to check for an
+	absolute path on Windows.
+
+	* font-latex.el (font-latex-built-in-keyword-classes): Add
+	definition for \rule and remove the one for \sbox.
+
+2011-04-25  Ralf Angeli  <angeli@caeruleus.net>
+
+	* style/setspace.el: Add support for changing \displayskipstretch.
+
+2011-04-25  Mads Jensen  <mje@inducks.org>
+
+	* style/setspace.el: New file.
+
+2011-04-25  Ralf Angeli  <angeli@caeruleus.net>
+
+	* latex.el (LaTeX-style-list): Add memoir.
+
+2011-04-20  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex-fold.el (TeX-fold-expand-spec): Make sure the expansion of a
+	placeholder is not processed again.
+
+2011-04-15  Ralf Angeli  <angeli@caeruleus.net>
+
+	* font-latex.el (font-latex-built-in-keyword-classes): Make a few
+	additions and corrections.
+
+	* latex.el (LaTeX-common-initialization): Prompt for file
+	extension instead of name when inserting \addcontentsline or
+	\addtocontents.
+
+2011-04-10  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex.el (TeX-source-correlate-mode): Check for D-Bus session.
+
+2011-04-10  Antoine Levitt  <antoine.levitt@gmail.com>  (tiny change)
+
+	* tex.el (TeX-source-correlate-sync-source): Do not use
+	`goto-line'.
+
+2011-04-03  Ralf Angeli  <angeli@caeruleus.net>
+
+	* Makefile.in (STYLESRC): Add style/xspace.el.
+
+	* style/xspace.el: Add copyright notice and license blurb.
+	Correct a few things.
+
+2011-04-03  Mads Jensen  <mje@inducks.org>
+
+	* style/xspace.el: New file.
+
+2011-03-27  Tassilo Horn  <tassilo@member.fsf.org>
+
+	* tex.el (TeX-source-correlate-mode): Add support for I/O
+	correlation mode inverse search for the Evince document viewer.
+
+2011-03-23  Ralf Angeli  <angeli@caeruleus.net>
+
+	* style/bulgarian.el, style/czech.el, style/danish.el,
+	style/frenchb.el, style/icelandic.el, style/polish.el,
+	style/polski.el, style/slovak.el, style/swedish.el: Do not set
+	`TeX-quote-language' if `override' is in effect.
+
+2011-03-20  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex-buf.el (TeX-synchronous-sentinel): Strip directory part of
+	master file because we are already in the master directory.
+
+2011-03-13  Ralf Angeli  <angeli@caeruleus.net>
+
+	* Makefile.in (STYLESRC): Add style/lettrine.el and
+	style/multicol.el.
+
+	* style/lettrine.el: Add copyright notice and license blurb.
+	Correct a few things.
+
+	* style/multicol.el: Add copyright notice and license blurb.
+	Simplify environment definitions.  Provide completion for lengths
+	the package defines.  Get rid of indentation and filling barrier.
+	Remove fontification definitions.
+
+2011-03-13  Mads Jensen  <mje@inducks.org>
+
+	* style/lettrine.el: New file.
+
+	* style/multicol.el: New file.
+
+2011-02-27  Ralf Angeli  <angeli@caeruleus.net>
+
+	* latex.el (LaTeX-common-initialization): Add support for
+	\ProvidesPackage.
+
+2011-02-06  Ralf Angeli  <angeli@caeruleus.net>
+
+	* style/letter.el (LaTeX-env-recipient): Use \renewcommand instead
+	of \def to set date.
+
+2011-01-30  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex.el (TeX-parse-macro): Do not insert braces if the argument
+	is 0 or less.
+	(TeX-parse-argument): Put both the macro and the marked region in
+	a TeX group if the argument is less than 0.
+
+	* latex.el (LaTeX-common-initialization): Give macros that change
+	font size a -1 argument so that braces are added around them if
+	if there is an active region.
+
+	* doc/auctex.texi (Adding Macros): Document special options 0 and
+	-1 for number-type specs.
+
+2011-01-29  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex.el (TeX-complete-symbol): Get rid of the window with the
+	completions when possible.
+
+2011-01-23  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex-fold.el (TeX-fold-post-command): Add `forward-char' and
+	`backward-char' to commands on which to open an overlay.
+
+	* doc/auctex.texi (Adding Macros): Mention
+	`TeX-arg-input-file-search'.
+
+2011-01-22  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex.el (TeX-tree-expand): Make `subdirs' parameter optional.  Do
+	not try to call kpsewhich with --expand-braces anymore and adapt
+	code for handling of results accordingly.
+	(TeX-doc-extenstions): New variable.
+	(TeX-tree-roots): New function.
+	(TeX-tree-roots): New user option.
+	(TeX-kpathsea-format-alist): Remove.
+	(TeX-search-files-kpathsea): Add and use `extensions' and `scope'
+	parameters.
+	(TeX-search-files): Do not call `TeX-search-files-kpathsea'
+	anymore.
+	(TeX-search-files-type-alist): New variable.
+	(TeX-search-files-by-type): New function.
+
+	* latex.el (LaTeX-arg-usepackage): Let-bind
+	`TeX-input-file-search'.
+	(LaTeX-search-files-type-alist): New user option.
+	(TeX-arg-input-file-search): Doc fix.
+	(TeX-arg-input-file, TeX-arg-bibstyle, TeX-arg-bibliography): Use
+	`TeX-search-files-by-type' instead of `TeX-search-files'.
+	(LaTeX-common-initialization): Set `TeX-search-files-type-alist'.
+
+2011-01-09  Ralf Angeli  <angeli@caeruleus.net>
+
+	* latex.el (LaTeX-common-initialization): Add support for
+	\settoheight and \settodepth.
+
+2010-12-26  Ralf Angeli  <angeli@caeruleus.net>
+
+	* doc/auctex.texi (Simple Style): Add a note about the naming of
+	the style file and the style hook.
+
+2010-12-12  Ralf Angeli  <angeli@caeruleus.net>
+
+	* latex.el (LaTeX-env-args): Add the optional argument at the
+	right position when wrapping the environment around existing text.
+
+2010-12-05  Ralf Angeli  <angeli@caeruleus.net>
+
+	* context.el: Set up abbrev table.
+	(ConTeXt-mode-common-initialization): Set `local-abbrev-table'.
+
+	* latex.el: Set up abbrev table for LaTeX and docTeX mode.
+	(docTeX-mode): Set abbrev table.
+	(LaTeX-common-initialization): Set `local-abbrev-table'.
+
+	* plain-tex.el: Set up abbrev table.
+	(plain-TeX-common-initialization): Set `local-abbrev-table'.
+
+	* tex.el (TeX-mode-prefix): Add mode parameter.
+	(VirTeX-common-initialization): Do not set `local-abbrev-table'
+	anymore.
+	(TeX-abbrev-mode-setup): New function.
+
+	* doc/changes.texi: Mention change of abbrev handling.
+
+2010-12-04  Ralf Angeli  <angeli@caeruleus.net>
+
+	* latex.el (LaTeX-verbatim-macro-boundaries): Support verbatim
+	macros with braces.
+
+2010-12-04  Augusto Ritter Stoffel  <arstoffel@inf.ufrgs.br>  (tiny change)
+
+	* latex.el (LaTeX-math-keymap): Define a key for the math prefix
+	only if it has not been used as a prefix after the prefix.
+
+2010-11-16  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex.el (TeX-view-program-list-builtin): Add Okular.
+
+2010-10-17  Ralf Angeli  <angeli@caeruleus.net>
+
+	* latex.el (TeX-arg-input-file-search): New user option.
+	(TeX-arg-input-file): Use it.
+
+2010-10-11  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex.el (TeX-synctex-output-page): Return "1" if no page number
+	can be found to prevent an infinite loop in command expansion.
+
+2010-10-02  Ralf Angeli  <angeli@caeruleus.net>
+
+	* style/beamer.el ("beamer"): Prompt for block title.
+
+2010-09-28  Ralf Angeli  <angeli@caeruleus.net>
+
+	* context.el (ConTeXt-extra-paragraph-commands): Remove.
+	(ConTeXt-language-variable-list): Add
+	`ConTeXt-extra-paragraph-commands'.
+
+	* context-en.el (ConTeXt-extra-paragraph-commands-en): New
+	variable.
+
+	* context-nl.el (ConTeXt-extra-paragraph-commands-nl): New
+	variable.
+
+2010-09-18  Ralf Angeli  <angeli@caeruleus.net>
+
+	* context.el (ConTeXt-expand-options): Eval value from engine
+	alist.
+
+2010-09-12  Ralf Angeli  <angeli@caeruleus.net>
+
+	* tex-fptex.el: Remove.
+
+	* Makefile.in (AUCSRC): Reflect removal of tex-fptex.el.
+
+	* doc/wininstall.texi: Reflect removal of tex-fptex.el.
+
+	* style/virtex.el: Mention author.  Do not unnecessarily protect
+	`lambda' with `function'.
+
+	* font-latex.el (font-latex-keyword-matcher): Refine last change
+	to work properly with lists of face symbols.
+
+2010-09-11  Ralf Angeli  <angeli@caeruleus.net>
+
+	* style/natbib.el: Update copyright information.
+
+	* style/letter.el: Update copyright information.
+
+	* style/harvard.el: Update copyright information.
+
+	* style/doc.el: Do not unnecessarily protect `lambda' with
+	`function'.
+
+2010-09-06  Arne Jørgensen  <arne@arnested.dk>
+
+	* style/danish.el: Changed font-latex-add-quotes from french to
+	german.
+
+2010-08-30  Ralf Angeli  <angeli@caeruleus.net>
+
+	* style/ngerman.el: Prevent "| from leading to color bleed.
+
+	* style/german.el: Prevent "| from leading to color bleed.
+
+2010-08-29  Ralf Angeli  <angeli@caeruleus.net>
+
+	* doc/preview-dtxdoc.pl: Use explicit variable with split instead
+	of implicit split to @_ which does not work anymore in Perl 5.12.
+
 2010-07-11  Ralf Angeli  <angeli@caeruleus.net>
 
 	* tex-info.el: Delete trailing whitespace.

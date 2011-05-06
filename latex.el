@@ -1,7 +1,8 @@
 ;;; latex.el --- Support for LaTeX documents.
 
 ;; Copyright (C) 1991, 1993, 1994, 1995, 1996, 1997, 1999, 2000, 2003,
-;;   2004, 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
+;;   2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Free Software
+;;   Foundation, Inc.
 
 ;; Maintainer: auctex-devel@gnu.org
 ;; Keywords: tex
@@ -1099,10 +1100,10 @@ Just like array and tabular."
 (defun LaTeX-env-args (environment &rest args)
   "Insert ENVIRONMENT and arguments defined by ARGS."
   (LaTeX-insert-environment environment)
-  (let ((pos (point-marker)))
-    (end-of-line 0)
-    (TeX-parse-arguments args)
-    (goto-char pos)))
+  (save-excursion
+    (LaTeX-find-matching-begin)
+    (end-of-line)
+    (TeX-parse-arguments args)))
 
 ;;; Item hooks
 
@@ -1597,6 +1598,7 @@ string."
 			      ("dinbrief")
 			      ("foils")
 			      ("letter")
+			      ("memoir")
 			      ("minimal")
 			      ("prosper")
 			      ("report")
@@ -1636,7 +1638,8 @@ OPTIONAL and IGNORE are ignored."
 (defun LaTeX-arg-usepackage (optional)
   "Insert arguments to usepackage.
 OPTIONAL is ignored."
-  (let ((TeX-file-extensions '("sty")))
+  (let ((TeX-file-extensions '("sty"))
+	(TeX-input-file-search t))
     (TeX-arg-input-file nil "Package")
     (save-excursion
       (search-backward-regexp "{\\(.*\\)}")
@@ -1671,9 +1674,50 @@ OPTIONAL is ignored."
 	  (mapc 'TeX-run-style-hooks (LaTeX-listify-package-options options))
 	  (TeX-argument-insert options t))))))
 
+(defcustom LaTeX-search-files-type-alist
+  '((texinputs "${TEXINPUTS.latex}" ("tex/generic/" "tex/latex/")
+	       TeX-file-extensions)
+    (docs "${TEXDOCS}" ("doc/") TeX-doc-extensions)
+    (graphics "${TEXINPUTS}" ("tex/") LaTeX-includegraphics-extensions)
+    (bibinputs "${BIBINPUTS}" ("bibtex/bib/") BibTeX-file-extensions)
+    (bstinputs "${BSTINPUTS}" ("bibtex/bst/") BibTeX-style-extensions))
+  "Alist of filetypes with locations and file extensions.
+Each element of the alist consists of a symbol expressing the
+filetype, a variable which can be expanded on kpathsea-based
+systems into the directories where files of the given type
+reside, a list of absolute directories, relative directories
+below the root of a TDS-compliant TeX tree or a list of variables
+with either type of directories as an alternative for
+non-kpathsea-based systems and a list of extensions to be matched
+upon a file search.  Note that the directories have to end with a
+directory separator.
+
+Reset the mode for a change of this variable to take effect."
+  :group 'TeX-file
+  :type '(alist :key-type symbol
+		:value-type
+		(group (string :tag "Kpathsea variable")
+		       (choice :tag "Directories"
+			       (repeat :tag "TDS subdirectories" string)
+			       (repeat :tag "Absolute directories" directory)
+			       (repeat :tag "Variables" variable))
+		       (choice :tag "Extensions"
+			       variable (repeat string)))))
+
+(defcustom TeX-arg-input-file-search t
+  "If `TeX-arg-input-file' should search for files.
+If the value is t, files in TeX's search path are searched for
+and provided for completion.  The file name is then inserted
+without directory and extension.  If the value is nil, the file
+name can be specified manually and is inserted with a path
+relative to the directory of the current buffer's file and with
+extension.  If the value is `ask', you are asked for the method
+to use every time `TeX-arg-input-file' is called."
+  :group 'LaTeX-macro
+  :type '(choice (const t) (const nil) (const ask)))
+
 (defvar TeX-global-input-files nil
   "List of the non-local TeX input files.
-
 Initialized once at the first time you prompt for an input file.
 May be reset with `\\[universal-argument] \\[TeX-normal-mode]'.")
 
@@ -1683,28 +1727,32 @@ If OPTIONAL is non-nil, insert the resulting value as an optional
 argument, otherwise as a mandatory one.  PROMPT is the prompt,
 LOCAL is a flag.  If the flag is set, only complete with local
 files."
-  (unless (or TeX-global-input-files local)
-    (message "Searching for files...")
-    (setq TeX-global-input-files
-	  (mapcar 'list (TeX-search-files (append TeX-macro-private
-						  TeX-macro-global)
-					  TeX-file-extensions t t))))
-  (let ((file (if TeX-check-path
-		  (completing-read
-		   (TeX-argument-prompt optional prompt "File")
-		   (TeX-delete-dups-by-car
-		    (append (mapcar 'list
-				    (TeX-search-files '("./")
-						      TeX-file-extensions
-						      t t))
-			    (unless local
-			      TeX-global-input-files))))
-		(read-file-name
-		 (TeX-argument-prompt optional prompt "File")))))
-    (if (null file)
-	(setq file ""))
-    (if (not (string-equal "" file))
-	(TeX-run-style-hooks file))
+  (let ((search (if (eq TeX-arg-input-file-search 'ask)
+		    (not (y-or-n-p "Find file yourself? "))
+		  TeX-arg-input-file-search))
+	file style)
+    (if search
+	(progn
+	  (unless (or TeX-global-input-files local)
+	    (message "Searching for files...")
+	    (setq TeX-global-input-files
+		  (mapcar 'list (TeX-search-files-by-type
+				 'texinputs 'global t t))))
+	  (setq file (completing-read
+		      (TeX-argument-prompt optional prompt "File")
+		      (TeX-delete-dups-by-car
+		       (append (mapcar 'list (TeX-search-files-by-type
+					      'texinputs 'local t t))
+			       (unless local
+				 TeX-global-input-files))))
+		style file))
+      (setq file (read-file-name
+		  (TeX-argument-prompt optional prompt "File") nil ""))
+      (unless (string-equal file "")
+	(setq file (file-relative-name file)))
+      (setq style (file-name-sans-extension (file-name-nondirectory file))))
+    (unless (string-equal "" style)
+      (TeX-run-style-hooks style))
     (TeX-argument-insert file optional)))
 
 (defvar BibTeX-global-style-files nil
@@ -1721,17 +1769,11 @@ string."
   (message "Searching for BibTeX styles...")
   (or BibTeX-global-style-files
       (setq BibTeX-global-style-files
-	    (mapcar 'list
-		    (TeX-search-files (append TeX-macro-private
-					      TeX-macro-global)
-				      BibTeX-style-extensions t t))))
-
+	    (mapcar 'list (TeX-search-files-by-type 'bstinputs 'global t t))))
   (TeX-argument-insert
    (completing-read (TeX-argument-prompt optional prompt "BibTeX style")
-		    (append (mapcar 'list
-				    (TeX-search-files '("./")
-						      BibTeX-style-extensions
-						      t t))
+		    (append (mapcar 'list (TeX-search-files-by-type
+					   'bstinputs 'local t t))
 			    BibTeX-global-style-files))
    optional))
 
@@ -1749,15 +1791,12 @@ string."
   (message "Searching for BibTeX files...")
   (or BibTeX-global-files
       (setq BibTeX-global-files
-	    (mapcar 'list (TeX-search-files nil BibTeX-file-extensions t t))))
-
+	    (mapcar 'list (TeX-search-files-by-type 'bibinputs 'global t t))))
   (let ((styles (multi-prompt
 		 "," t
 		 (TeX-argument-prompt optional prompt "BibTeX files")
-		 (append (mapcar 'list
-				 (TeX-search-files '("./")
-						   BibTeX-file-extensions
-						   t t))
+		 (append (mapcar 'list (TeX-search-files-by-type
+					'bibinputs 'local t t))
 			 BibTeX-global-files))))
     (apply 'LaTeX-add-bibliographies styles)
     (TeX-argument-insert (mapconcat 'identity styles ",") optional)))
@@ -2041,10 +2080,22 @@ non-parenthetical delimiters, like \\verb+foo+, are recognized."
 		   (/= (point) (line-beginning-position))))))
       ;; Search forward for the macro end, unless we failed to find a start
       (unless (bolp)
-	(let ((beg (1- (point))))
-	  (goto-char (1+ (match-end 0)))
-	  (skip-chars-forward (concat "^" (buffer-substring-no-properties
-					   (1- (point)) (point))))
+	(let* ((beg (1- (point)))
+	       (macro-end (match-end 0))
+	       ;; XXX: Here we assume we are dealing with \verb which
+	       ;; expects the delimiter right behind the command.
+	       ;; However, \lstinline can also cope with whitespace as
+	       ;; well as an optional argument after the command.
+	       (delimiter (buffer-substring-no-properties
+			   macro-end (1+ macro-end))))
+	  ;; Heuristic: If an opening brace is encountered, search for
+	  ;; both the opening and the closing brace as an end marker.
+	  ;; Like that the function should work for \verb|...| as well
+	  ;; as for \url{...}.
+	  (when (string= delimiter TeX-grop)
+	    (setq delimiter (concat delimiter TeX-grcl)))
+	  (goto-char (1+ macro-end))
+	  (skip-chars-forward (concat "^" delimiter))
 	  (when (<= orig (point))
 	    (cons beg (1+ (point)))))))))
 
@@ -4318,10 +4369,7 @@ use \\[customize]."
       (read-kbd-macro LaTeX-math-abbrev-prefix)
     LaTeX-math-abbrev-prefix))
 
-(defvar LaTeX-math-keymap
-  (let ((map (make-sparse-keymap)))
-    (define-key map (LaTeX-math-abbrev-prefix) 'self-insert-command)
-    map)
+(defvar LaTeX-math-keymap (make-sparse-keymap)
   "Keymap used for `LaTeX-math-mode' commands.")
 
 (defvar LaTeX-math-menu
@@ -4394,7 +4442,10 @@ the sequence by initializing this variable.")
 				  (list menu (vector (concat prefix value)
 						     name t))
 				(vector menu name t))
-			      (cdr parent))))))))))
+			      (cdr parent)))))))))
+  ;; Make the math prefix char available if it has not been used as a prefix.
+  (unless (lookup-key map (LaTeX-math-abbrev-prefix))
+    (define-key map (LaTeX-math-abbrev-prefix) 'self-insert-command)))
 
 (define-minor-mode LaTeX-math-mode
   "A minor mode with easy access to TeX math macros.
@@ -4901,6 +4952,8 @@ This happens when \\left is inserted."
   :type 'hook
   :group 'LaTeX)
 
+(TeX-abbrev-mode-setup latex-mode)
+
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.drv\\'" . latex-mode))
 
@@ -4933,6 +4986,8 @@ of `LaTeX-mode-hook'."
 	   filladapt-mode)
       (turn-off-filladapt-mode)))
 
+(TeX-abbrev-mode-setup doctex-mode)
+
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.dtx\\'" . doctex-mode))
 
@@ -4941,6 +4996,7 @@ of `LaTeX-mode-hook'."
   "Major mode in AUCTeX for editing .dtx files derived from `LaTeX-mode'.
 Runs `LaTeX-mode', sets a few variables and
 runs the hooks in `docTeX-mode-hook'."
+  :abbrev-table doctex-mode-abbrev-table
   (setq major-mode 'doctex-mode)
   (set (make-local-variable 'LaTeX-insert-into-comments) t)
   (set (make-local-variable 'LaTeX-syntactic-comments) t)
@@ -5012,6 +5068,8 @@ i.e. you do _not_ have to cater for this yourself by adding \\\\' or $."
   (make-local-variable 'indent-line-function)
   (setq indent-line-function 'LaTeX-indent-line)
 
+  (setq local-abbrev-table latex-mode-abbrev-table)
+
   ;; Filling
   (make-local-variable 'paragraph-ignore-fill-prefix)
   (setq paragraph-ignore-fill-prefix t)
@@ -5051,6 +5109,8 @@ i.e. you do _not_ have to cater for this yourself by adding \\\\' or $."
   (setq TeX-verbatim-p-function 'LaTeX-verbatim-p)
   (setq TeX-search-forward-comment-start-function
 	'LaTeX-search-forward-comment-start)
+  (set (make-local-variable 'TeX-search-files-type-alist)
+       LaTeX-search-files-type-alist)
 
   (make-local-variable 'LaTeX-item-list)
   (setq LaTeX-item-list '(("description" . LaTeX-item-argument)
@@ -5211,6 +5271,8 @@ i.e. you do _not_ have to cater for this yourself by adding \\\\' or $."
    '("setlength" TeX-arg-macro "Length")
    '("addtolength" TeX-arg-macro "Length")
    '("settowidth" TeX-arg-macro t)
+   '("settoheight" TeX-arg-macro t)
+   '("settodepth" TeX-arg-macro t)
    '("\\" [ "Space" ])
    '("\\*" [ "Space" ])
    '("hyphenation" t)
@@ -5257,11 +5319,11 @@ i.e. you do _not_ have to cater for this yourself by adding \\\\' or $."
    '("include" (TeX-arg-input-file "File" t))
    '("includeonly" t)
    '("input" TeX-arg-input-file)
-   '("addcontentsline" TeX-arg-file
-     (TeX-arg-eval
-      completing-read "Numbering style: " LaTeX-section-list)
-     t)
-   '("addtocontents" TeX-arg-file t)
+   '("addcontentsline"
+     (TeX-arg-eval completing-read "File: " '(("toc") ("lof") ("lot")))
+     (TeX-arg-eval completing-read "Numbering style: " LaTeX-section-list) t)
+   '("addtocontents"
+     (TeX-arg-eval completing-read "File: " '(("toc") ("lof") ("lot"))) t)
    '("typeout" t)
    '("typein" [ TeX-arg-define-macro ] t)
    '("verb" TeX-arg-verb)
@@ -5289,8 +5351,9 @@ i.e. you do _not_ have to cater for this yourself by adding \\\\' or $."
    "clearpage" "cleardoublepage" "twocolumn" "onecolumn"
 
    "maketitle" "tableofcontents" "listoffigures" "listoftables"
-   "tiny" "scriptsize" "footnotesize" "small"
-   "normalsize" "large" "Large" "LARGE" "huge" "Huge"
+   '("tiny" -1) '("scriptsize" -1) '("footnotesize" -1) '("small" -1)
+   '("normalsize" -1) '("large" -1) '("Large" -1) '("LARGE" -1) '("huge" -1)
+   '("Huge" -1)
    "pounds" "copyright"
    "hfil" "hfill" "vfil" "vfill" "hrulefill" "dotfill"
    "indent" "noindent" "today"
@@ -5346,6 +5409,7 @@ i.e. you do _not_ have to cater for this yourself by adding \\\\' or $."
        [ "Number of arguments" ] [ "Default value for first argument" ] t)
      '("usepackage" LaTeX-arg-usepackage)
      '("RequirePackage" LaTeX-arg-usepackage)
+     '("ProvidesPackage" "Name" [ "Version" ])
      '("documentclass" TeX-arg-document)))
 
   (TeX-add-style-hook "latex2e"
@@ -5390,6 +5454,7 @@ i.e. you do _not_ have to cater for this yourself by adding \\\\' or $."
        'LaTeX-imenu-create-index-function)
 
   (use-local-map LaTeX-mode-map)
+
   ;; Calling `easy-menu-add' may result in the menu filters being
   ;; executed which call `TeX-update-style'.  So this is placed very
   ;; late in mode initialization to assure that all relevant variables
